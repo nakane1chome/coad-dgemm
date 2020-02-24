@@ -16,11 +16,12 @@ void do_block(int n, int si, int sj, int sk,
                 c[x] = _vector_load_pd(C+i+x*VECTOR_LENGTH+j*n);
             } // x
             // c[x] = C[i][j];
-            for (int k=sk; k< sk + BLOCKSIZE; k++) {
-                double_vec_t b = _vector_broadcast_sd(B+k+j*n);
+            for (int k=sk; k < sk + BLOCKSIZE; k++) {
+                double_vec_t b = _vector_broadcast_sd(B+j*n+k);
                 for (int x=0; x<UNROLL; x++) {
-                    c[x] = _vector_add_pd(c[x], // c[x] += A[i][k]*b
-					  _vector_mul_pd(_vector_load_pd(A+n*k+x*VECTOR_LENGTH+i), b));
+                    double_vec_t a = _vector_load_pd(A+k*n+i+x*VECTOR_LENGTH);
+                    // c[x] += A[i][k]*b
+                    c[x] = _vector_add_pd(c[x], _vector_mul_pd(a, b));
                 } // x
                 
             } // k 
@@ -33,7 +34,7 @@ void do_block(int n, int si, int sj, int sk,
 
 void dgemm_cache_blocking(int n, double *A, double * B, double *C) {
     for (int si=0; si < n; si += BLOCKSIZE) {
-        for (int sj=0; sj < n; sj +=BLOCKSIZE) {
+        for (int sj=0; sj < n; sj += BLOCKSIZE) {
             for (int sk=0; sk < n; sk += BLOCKSIZE) {
                 do_block(n, si, sj, sk, A, B , C);
             }
