@@ -30,7 +30,7 @@ typedef __m256d double_vec_t ;
 // TODO
 typedef  float64x2_t double_vec_t;
 #define _vector_load_pd(PTR) vld1q_f64(PTR)
-#define _vector_broadcast_sd(PTR) vld1q_f64(PTR)
+#define _vector_broadcast_sd(PTR) vld1q_dup_f64(PTR)
 #define _vector_add_pd(A, B) vaddq_f64(A, B)
 #define _vector_mul_pd(A, B) vmulq_f64(A, B)
 #define _vector_store_pd(PTR, A) vst1q_f64(PTR, A)
