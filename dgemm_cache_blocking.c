@@ -9,23 +9,23 @@
 
 void do_block(int n, int si, int sj, int sk, 
               double *A, double *B, double *C) {
-    for (int i=si; i < si+BLOCKSIZE; i+= UNROLL*4) {
+    for (int i=si; i < si+BLOCKSIZE; i+= UNROLL*VECTOR_LENGTH) {
         for (int j=sj; j < sj+BLOCKSIZE; j++) {
-            __m256d c[4];
+            double_vec_t c[UNROLL];
             for (int x=0; x<UNROLL; x++) {
-                c[x] = _mm256_load_pd(C+i+x*4+j*n);
+                c[x] = _vector_load_pd(C+i+x*VECTOR_LENGTH+j*n);
             } // x
             // c[x] = C[i][j];
             for (int k=sk; k< sk + BLOCKSIZE; k++) {
-                __m256d b = _mm256_broadcast_sd(B+k+j*n);
+                double_vec_t b = _vector_broadcast_sd(B+k+j*n);
                 for (int x=0; x<UNROLL; x++) {
-                    c[x] = _mm256_add_pd(c[x], // c[x] += A[i][k]*b
-                                         _mm256_mul_pd(_mm256_load_pd(A+n*k+x*4+i), b));
+                    c[x] = _vector_add_pd(c[x], // c[x] += A[i][k]*b
+					  _vector_mul_pd(_vector_load_pd(A+n*k+x*VECTOR_LENGTH+i), b));
                 } // x
                 
             } // k 
             for (int x=0; x<UNROLL; x++) {
-                _mm256_store_pd(C+i+x*4+j*n, c[x]);
+                _vector_store_pd(C+i+x*VECTOR_LENGTH+j*n, c[x]);
             } // x
         } // j
     } // i
