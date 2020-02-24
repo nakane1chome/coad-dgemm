@@ -1,4 +1,4 @@
-MACHINE=$(uname -m)
+MACHINE=$(shell uname -m)
 
 CXX=gcc
 
@@ -22,3 +22,7 @@ ${TARGET} : ${OBJS}
 
 clean:
 	rm -f ${TARGET} *.o
+
+
+info :
+	@echo ${MACHINE}
