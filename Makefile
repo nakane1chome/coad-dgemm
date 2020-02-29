@@ -1,20 +1,20 @@
 MACHINE=$(shell uname -m)
 
-CXX=gcc
+CXX=g++
 
-CFLAGS = -O3
+CXXFLAGS = -O3
 ifeq (${MACHINE},x86_64)
-CFLAGS+=  -mavx2
+CXXFLAGS+=  -mavx2
 endif
 ifeq (${MACHINE},aarch64)
-CFLAGS+= 
+CXXFLAGS+= 
 endif
 
 LDLIBS = 
-LINK.o = cc $(LDFLAGS) $(TARGET_ARCH)
+LINK.o = g++ $(LDFLAGS) $(TARGET_ARCH)
 
-SRCS=${wildcard *.c}
-OBJS=${SRCS:%.c=%.o}
+SRCS=${wildcard *.cpp}
+OBJS=${SRCS:%.cpp=%.o}
 
 TARGET=test
 

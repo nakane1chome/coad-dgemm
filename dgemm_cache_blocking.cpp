@@ -1,7 +1,9 @@
+
 //
 // Derived from Computer Organization and design : The hardware/software interface
 // Figure 5.47 Optimized C version of DGEMM Example, using cache blocking
 
+#include "dgemm.hpp"
 #include "vector_ext.h"
 
 #define UNROLL (4)

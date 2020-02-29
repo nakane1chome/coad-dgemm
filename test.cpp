@@ -1,12 +1,14 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <stdbool.h>
+#include <iostream>
 
-extern void dgemm_unopt(int n, double *A, double * B, double *C);
-extern void dgemm_cache_blocking(int n, double *A, double * B, double *C);
 
 #define ALIGNMENT 256
 #include "mem_util.h"
+#include "profile_util.hpp"
+
+#include "dgemm.hpp"
 
 void randomize_matrix(double *M, int n);
 void zero_matrix(double *M, int n);
@@ -16,17 +18,23 @@ int main(int argc, char **argv) {
     
     const int n = 128;
     const size_t buffer_size = n*n*sizeof(double);
-    double *A = aligned_alloc(ALIGNMENT, buffer_size);
-    double *B = aligned_alloc(ALIGNMENT, buffer_size);
-    double *C0 = aligned_alloc(ALIGNMENT, buffer_size);
-    double *C1 = aligned_alloc(ALIGNMENT, buffer_size);
+    profiler p("dgemm");
+    double *A  = (double *) aligned_alloc(ALIGNMENT, buffer_size);
+    double *B  = (double *) aligned_alloc(ALIGNMENT, buffer_size);
+    double *C0 = (double *) aligned_alloc(ALIGNMENT, buffer_size);
+    double *C1 = (double *) aligned_alloc(ALIGNMENT, buffer_size);
     randomize_matrix(A, n);
     randomize_matrix(B, n);
     zero_matrix(C0, n);
     zero_matrix(C1, n);
 
+    p.start("unopt");
     dgemm_unopt(n, A, B, C0);
+    p.end();
+    
+    p.start("cache_blocking");
     dgemm_cache_blocking(n, A, B, C1);
+    p.end();
 
     if (compare_matrix(n, C0, C1)) {
         printf("ERROR: unoptimized and cache blocking mismatch\n");
@@ -34,6 +42,9 @@ int main(int argc, char **argv) {
     }
 
     printf("Results Match: Passed.\n");
+
+    p.report(std::cout);
+
     return 0;
 }
 
